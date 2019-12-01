@@ -87,22 +87,7 @@ bool is_position_changed(vision_object_s_t &old_pos, vision_object_s_t &new_pos)
 		return false;
 }
 
-vision_object_s_t & get_largest_obj(vision_object_s_t objs[]) {
-	int max = 0;
-	int index = 0;
-	int arr_size = 3; //sizeof(objs) / sizeof(objs[0]);
-	for (int i=0; i<arr_size; ++i) {
-		if (objs[i].signature == 255) {
-			continue;
-		}
-		int size = objs[i].width * objs[i].height;
-		if (size > max) {
-			max = size;
-			index = i;
-		}
-	}
-	return objs[index];
-}
+
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -118,21 +103,9 @@ vision_object_s_t & get_largest_obj(vision_object_s_t objs[]) {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	vision_object_s_t old_pos;
-
 	while (true) {
 		if (!chassis_control()) {
-			auto orange_obj = camera.get_by_sig(0, SIG_ORANGE_CUBE);
-			auto green_obj = camera.get_by_sig(0, SIG_GREEN_CUBE);
-			auto purple_obj = camera.get_by_sig(0, SIG_PURPLE_CUBE);
-
-			vision_object_s_t objs[] = {orange_obj, green_obj, purple_obj};
-			auto largest_obj = get_largest_obj(objs);
-
-			if (largest_obj.signature != 255 && old_pos.signature != largest_obj.signature) {
-				cout << "largest obj present: " << largest_obj.signature << endl;
-				old_pos = largest_obj;
-			}
+			follow_orange_cube();
 		}
 		pros::delay(50);
 	}
