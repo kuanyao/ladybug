@@ -45,8 +45,9 @@ vision_object_s_t & get_largest_obj(vision_object_s_t objs[]) {
 }
 
 bool is_cube_close_enough(vision_object_s_t &vision_obj) {
-
-
+    cout << "judging if close enough by width: " << vision_obj.width;
+    cout << ", y: " << vision_obj.top_coord;
+    cout << ", height: " << vision_obj.height;
     if (vision_obj.width > WIDTH_WHEN_CUBE_IS_IN_FRONT && 
         vision_obj.top_coord > Y_POSITION_WHEN_CUBE_IS_IN_FRONT && 
         vision_obj.height < HEIGHT_WHEN_CUBE_IS_IN_FRONT) {
@@ -56,6 +57,7 @@ bool is_cube_close_enough(vision_object_s_t &vision_obj) {
 }
 
 bool is_cube_front_centered(vision_object_s_t &vision_obj) {
+    cout << "judging if front centered by x: " << vision_obj.left_coord;
     if (abs(vision_obj.left_coord - X_POSITION_WHEN_CUBE_IS_IN_FRONT_CENTER) < CENTER_POSITION_THRESHOLD) {
         return true;
     }
@@ -63,6 +65,7 @@ bool is_cube_front_centered(vision_object_s_t &vision_obj) {
 }
 
 bool is_cube_centered(vision_object_s_t &vision_obj) {
+    cout << "judging if centered by x: " << vision_obj.x_middle_coord; 
     if (abs(vision_obj.x_middle_coord - VISION_SENSOR_VIEW_CENTER) < CENTER_POSITION_THRESHOLD) {
         return true;
     }
@@ -104,12 +107,13 @@ void follow_orange_cube() {
                 chassis.forward(0.2);
             }
         }
-    } else {
-        cout << "sig: " << orange_obj.signature;
-        cout << ", x: " << orange_obj.left_coord;
-        cout << ", y: " << orange_obj.top_coord;
-        cout << ", width: " << orange_obj.width;
-        cout << ", height: " << orange_obj.height;
-        cout << endl;
-    }
+    } 
+    // else {
+    //     cout << "sig: " << orange_obj.signature;
+    //     cout << ", x: " << orange_obj.left_coord;
+    //     cout << ", y: " << orange_obj.top_coord;
+    //     cout << ", width: " << orange_obj.width;
+    //     cout << ", height: " << orange_obj.height;
+    //     cout << endl;
+    // }
 }

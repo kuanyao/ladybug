@@ -7,7 +7,7 @@
 #define SIG_PURPLE_CUBE 2
 #define SIG_GREEN_CUBE 3
 
-#define VISION_PORT 1
+#define VISION_PORT 21
 
 extern pros::vision_signature_s_t signature_orange_cube;
 extern pros::vision_signature_s_t signature_purple_cube;

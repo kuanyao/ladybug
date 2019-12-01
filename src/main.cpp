@@ -67,27 +67,23 @@ void competition_initialize() {}
  */
 void autonomous() {}
 
-bool is_position_changed(vision_object_s_t &old_pos, vision_object_s_t &new_pos) {
-		if (old_pos.signature != new_pos.signature) {
-			return true;
-		}
+const int AUTO_TRACE_NONE 	= 0;
+const int AUTO_TRACE_ORAGEN = 1;
+const int AUTO_TRACE_ALL 	= 2;
 
-		const int16_t threshold = 20;
+int auto_trace_mode = AUTO_TRACE_NONE;
 
-		if (abs(old_pos.left_coord - new_pos.left_coord) > threshold ||
-				abs(old_pos.top_coord - new_pos.top_coord) > threshold ||
-				abs(old_pos.width - new_pos.width) > threshold ||
-				abs(old_pos.height - new_pos.height) > threshold ||
-				abs(old_pos.x_middle_coord - new_pos.x_middle_coord) > threshold ||
-				abs(old_pos.y_middle_coord - new_pos.y_middle_coord) > threshold ||
-				abs(old_pos.angle - new_pos.angle) > threshold) {
-			return true;
-		}
-
-		return false;
+void select_auto_trace() {
+	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_X) == 1) {
+		auto_trace_mode = AUTO_TRACE_NONE;
+	}	
+	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_Y) == 1) {
+		auto_trace_mode = AUTO_TRACE_ORAGEN;
+	}	
+	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_A) == 1) {
+		auto_trace_mode = AUTO_TRACE_ALL;
+	}	
 }
-
-
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -104,8 +100,20 @@ bool is_position_changed(vision_object_s_t &old_pos, vision_object_s_t &new_pos)
  */
 void opcontrol() {
 	while (true) {
+		select_auto_trace();
 		if (!chassis_control()) {
-			follow_orange_cube();
+			switch (auto_trace_mode) {
+				case AUTO_TRACE_ORAGEN:
+					follow_orange_cube();
+					break;
+				case AUTO_TRACE_ALL:
+					break;
+				case AUTO_TRACE_NONE:
+					chassis.stop();
+					break;
+				default:
+					break;
+			}
 		}
 		pros::delay(50);
 	}
