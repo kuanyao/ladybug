@@ -35,6 +35,7 @@
 #define PROS_USE_LITERALS
 
 #include "api.h"
+#include "okapi/api.hpp"
 
 /**
  * You should add more #includes here
@@ -77,5 +78,22 @@ void opcontrol(void);
  */
 //#include <iostream>
 #endif
+
+//chassis motor ports
+const int CHASSIS_LEFT_FRONT  = 19;
+const int CHASSIS_LEFT_REAR   = 20;
+const int CHASIIS_RIGHT_FRONT = 9;
+const int CHASSIS_RIGHT_REAR  = 10;
+
+//chassis
+extern pros::Motor chassis_left_front;
+extern pros::Motor chassis_left_rear;
+extern pros::Motor chassis_right_front;
+extern pros::Motor chassis_right_rear;
+
+extern pros::Controller master;
+extern okapi::ChassisControllerIntegrated chassis;
+
+bool chassis_control();
 
 #endif  // _PROS_MAIN_H_

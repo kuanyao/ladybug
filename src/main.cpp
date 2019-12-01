@@ -121,46 +121,18 @@ void opcontrol() {
 	vision_object_s_t old_pos;
 
 	while (true) {
-		// pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		//                  (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		//                  (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		// pros::vision_object_s_t rtn = camera.get_by_size(0);
-		// if (rtn.signature != 255 && is_position_changed(old_pos, rtn)) {
-		// 	cout << "sig_id: " << rtn.signature;
-		// 	// cout << "left_coord: " << rtn.left_coord<< endl;
-		// 	// cout << "top_coord: " << rtn.top_coord<< endl;
-		// 	cout << ", width: " << rtn.width;
-		// 	cout << ", height: " << rtn.height;
-		// 	// cout << ", angle: " << rtn.angle;
-		// 	cout << ", x_middle_coord: " << rtn.x_middle_coord;
-		// 	cout << ", y_middle_coord: " << rtn.y_middle_coord;
-		// 	cout << endl;
-		// }
-		// old_pos = rtn;
+		if (!chassis_control()) {
+			auto orange_obj = camera.get_by_sig(0, SIG_ORANGE_CUBE);
+			auto green_obj = camera.get_by_sig(0, SIG_GREEN_CUBE);
+			auto purple_obj = camera.get_by_sig(0, SIG_PURPLE_CUBE);
 
-		// int orange_size = 0, green_size = 0, purple_size = 0;
-		auto orange_obj = camera.get_by_sig(0, SIG_ORANGE_CUBE);
-		// if (orange_obj.signature != 255) {
-		// 	cout << "orange" << endl;
-		// 	orange_size = orange_obj.width * orange_obj.height;
-		// }
-		auto green_obj = camera.get_by_sig(0, SIG_GREEN_CUBE);
-		// if (green_obj.signature != 255) {
-		// 	cout << "green" << endl;
-		// 	green_size = green_obj.width * green_obj.height;
-		// }
-		auto purple_obj = camera.get_by_sig(0, SIG_PURPLE_CUBE);
-		// if (purple_obj.signature != 255) {
-		// 	cout << "purple" << endl;
-		// 	purple_size = purple_obj.width * purple_obj.height;
-		// }
+			vision_object_s_t objs[] = {orange_obj, green_obj, purple_obj};
+			auto largest_obj = get_largest_obj(objs);
 
-		vision_object_s_t objs[] = {orange_obj, green_obj, purple_obj};
-		auto largest_obj = get_largest_obj(objs);
-
-		if (largest_obj.signature != 255 && old_pos.signature != largest_obj.signature) {
-			cout << "largest obj present: " << largest_obj.signature << endl;
-			old_pos = largest_obj;
+			if (largest_obj.signature != 255 && old_pos.signature != largest_obj.signature) {
+				cout << "largest obj present: " << largest_obj.signature << endl;
+				old_pos = largest_obj;
+			}
 		}
 		pros::delay(50);
 	}
