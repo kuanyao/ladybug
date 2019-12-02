@@ -95,6 +95,6 @@ extern pros::Controller master;
 extern okapi::ChassisControllerIntegrated chassis;
 
 bool chassis_control();
-void follow_orange_cube();
+void follow_single_cube(int signature_num, int &trace_obj_state);
 
 #endif  // _PROS_MAIN_H_

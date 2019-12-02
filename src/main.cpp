@@ -68,20 +68,26 @@ void competition_initialize() {}
 void autonomous() {}
 
 const int AUTO_TRACE_NONE 	= 0;
-const int AUTO_TRACE_ORAGEN = 1;
+const int AUTO_TRACE_SINGLE_OBJ = 1;
 const int AUTO_TRACE_ALL 	= 2;
 
 int auto_trace_mode = AUTO_TRACE_NONE;
+int trace_obj = -1;
+int trace_obj_state = 0;
 
 void select_auto_trace() {
 	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_X) == 1) {
 		auto_trace_mode = AUTO_TRACE_NONE;
 	}	
 	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_Y) == 1) {
-		auto_trace_mode = AUTO_TRACE_ORAGEN;
+		auto_trace_mode = AUTO_TRACE_SINGLE_OBJ;
+		trace_obj = (trace_obj + 1) % 3;
 	}	
 	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_A) == 1) {
 		auto_trace_mode = AUTO_TRACE_ALL;
+	}	
+	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_B) == 1) {
+		trace_obj_state = 0;
 	}	
 }
 
@@ -102,9 +108,17 @@ void opcontrol() {
 	while (true) {
 		select_auto_trace();
 		if (!chassis_control()) {
+			char * trace_obj_str = "trace orange";
 			switch (auto_trace_mode) {
-				case AUTO_TRACE_ORAGEN:
-					follow_orange_cube();
+				case AUTO_TRACE_SINGLE_OBJ:
+					lcd::clear_line(1);
+					if (trace_obj == 1) {
+						trace_obj_str = "trace purple";
+					} else if (trace_obj == 2) {
+						trace_obj_str = "trace green";
+					}
+					lcd::set_text(1, trace_obj_str);
+					follow_single_cube(trace_obj + 1, trace_obj_state);
 					break;
 				case AUTO_TRACE_ALL:
 					break;

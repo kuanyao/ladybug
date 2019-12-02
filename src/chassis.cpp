@@ -7,11 +7,11 @@ using namespace std;
 using namespace okapi;
 using namespace pros;
 
-const int WIDTH_WHEN_CUBE_IS_IN_FRONT = 70;
+const int WIDTH_WHEN_CUBE_IS_IN_FRONT = 60;
 const int Y_POSITION_WHEN_CUBE_IS_IN_FRONT = 190;
 const int HEIGHT_WHEN_CUBE_IS_IN_FRONT = 20;
 const int X_POSITION_WHEN_CUBE_IS_IN_FRONT_CENTER = 62;
-const int CENTER_POSITION_THRESHOLD = 5;
+const int CENTER_POSITION_THRESHOLD = 10;
 const int VISION_SENSOR_VIEW_CENTER = 158;
 
 
@@ -47,7 +47,7 @@ vision_object_s_t & get_largest_obj(vision_object_s_t objs[]) {
 bool is_cube_close_enough(vision_object_s_t &vision_obj) {
     cout << "judging if close enough by width: " << vision_obj.width;
     cout << ", y: " << vision_obj.top_coord;
-    cout << ", height: " << vision_obj.height;
+    cout << ", height: " << vision_obj.height << ". ";
     if (vision_obj.width > WIDTH_WHEN_CUBE_IS_IN_FRONT && 
         vision_obj.top_coord > Y_POSITION_WHEN_CUBE_IS_IN_FRONT && 
         vision_obj.height < HEIGHT_WHEN_CUBE_IS_IN_FRONT) {
@@ -57,7 +57,7 @@ bool is_cube_close_enough(vision_object_s_t &vision_obj) {
 }
 
 bool is_cube_front_centered(vision_object_s_t &vision_obj) {
-    cout << "judging if front centered by x: " << vision_obj.left_coord;
+    cout << "judging if front centered by x: " << vision_obj.left_coord << ". ";
     if (abs(vision_obj.left_coord - X_POSITION_WHEN_CUBE_IS_IN_FRONT_CENTER) < CENTER_POSITION_THRESHOLD) {
         return true;
     }
@@ -65,55 +65,66 @@ bool is_cube_front_centered(vision_object_s_t &vision_obj) {
 }
 
 bool is_cube_centered(vision_object_s_t &vision_obj) {
-    cout << "judging if centered by x: " << vision_obj.x_middle_coord; 
+    cout << "judging if centered by x: " << vision_obj.x_middle_coord << ". "; 
     if (abs(vision_obj.x_middle_coord - VISION_SENSOR_VIEW_CENTER) < CENTER_POSITION_THRESHOLD) {
         return true;
     }
     return false;
 }
 
-void follow_orange_cube() {
-    auto orange_obj = camera.get_by_sig(0, SIG_ORANGE_CUBE); 
-    
-    if (orange_obj.signature == SIG_ORANGE_CUBE) { 
-        if (is_cube_close_enough(orange_obj)) {
-            cout << "chassis is close enough, ";  
-            chassis.stop();
-            if (is_cube_front_centered(orange_obj)) {
-                cout << "and orange cube is right in the front!!" << endl;
-                chassis.setMaxVelocity(600);
-            } else {
-                cout << "but not aligned to center. Adjusting angle now." << endl;
-                chassis.setMaxVelocity(100);
-                if (orange_obj.left_coord > X_POSITION_WHEN_CUBE_IS_IN_FRONT_CENTER) {
+void follow_single_cube(int signature_num, int& tracking_obj_state) {
+    auto tracing_obj = camera.get_by_sig(0, signature_num); 
+
+    if (tracing_obj.signature == signature_num) { 
+        if (tracking_obj_state == 0) {
+            cout << "chassis is too far, ";
+            if (!is_cube_centered(tracing_obj)) {
+                cout << "and not alighed to center. Adjusting angle now." << endl;
+                chassis.setMaxVelocity(200);
+                if (tracing_obj.x_middle_coord > VISION_SENSOR_VIEW_CENTER) {
                     chassis.turnAngle(-3_deg);
                 } else {
                     chassis.turnAngle(3_deg);
                 }
-            }
-        } else {
-            cout << "chassis is too far, ";
-            if (!is_cube_centered(orange_obj)) {
-                cout << "and not alighed to center. Adjusting angle now." << endl;
-                chassis.setMaxVelocity(100);
-                if (orange_obj.x_middle_coord > VISION_SENSOR_VIEW_CENTER) {
-                    chassis.turnAngle(-2_deg);
-                } else {
-                    chassis.turnAngle(2_deg);
-                }
             } else {
                 cout << "but centered. Now moving closer." << endl;
-                chassis.setMaxVelocity(600);
+                // chassis.setMaxVelocity(600);
                 chassis.forward(0.2);
+                tracking_obj_state = 1;
+            }
+        }
+
+        if (tracking_obj_state == 1) {
+            if (is_cube_close_enough(tracing_obj)) {
+                cout << "chassis is close enough, ";  
+                chassis.stop();
+                tracking_obj_state = 2;
+
+            } 
+        }
+
+        if (tracking_obj_state == 2) {
+            if (is_cube_front_centered(tracing_obj)) {
+                cout << "and tracking cube is right in the front!!" << endl;
+                tracking_obj_state = 3;
+                // chassis.setMaxVelocity(600);
+            } else {
+                cout << "but not aligned to center. Adjusting angle now." << endl;
+                chassis.setMaxVelocity(100);
+                if (tracing_obj.left_coord > X_POSITION_WHEN_CUBE_IS_IN_FRONT_CENTER) {
+                    chassis.turnAngle(-5_deg);
+                } else {
+                    chassis.turnAngle(5_deg);
+                }
             }
         }
     } 
     // else {
-    //     cout << "sig: " << orange_obj.signature;
-    //     cout << ", x: " << orange_obj.left_coord;
-    //     cout << ", y: " << orange_obj.top_coord;
-    //     cout << ", width: " << orange_obj.width;
-    //     cout << ", height: " << orange_obj.height;
+    //     cout << "sig: " << tracing_obj.signature;
+    //     cout << ", x: " << tracing_obj.left_coord;
+    //     cout << ", y: " << tracing_obj.top_coord;
+    //     cout << ", width: " << tracing_obj.width;
+    //     cout << ", height: " << tracing_obj.height;
     //     cout << endl;
     // }
 }
