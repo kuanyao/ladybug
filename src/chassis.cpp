@@ -82,14 +82,13 @@ void follow_single_cube(int signature_num, int& tracking_obj_state) {
                 cout << "and not alighed to center. Adjusting angle now." << endl;
                 chassis.setMaxVelocity(200);
                 if (tracing_obj.x_middle_coord > VISION_SENSOR_VIEW_CENTER) {
-                    chassis.turnAngle(-3_deg);
+                    chassis.turnAngle(5_deg);
                 } else {
-                    chassis.turnAngle(3_deg);
+                    chassis.turnAngle(-5_deg);
                 }
             } else {
-                cout << "but centered. Now moving closer." << endl;
+                cout << "centered. Now moving closer." << endl;
                 // chassis.setMaxVelocity(600);
-                chassis.forward(0.2);
                 tracking_obj_state = 1;
             }
         }
@@ -99,8 +98,10 @@ void follow_single_cube(int signature_num, int& tracking_obj_state) {
                 cout << "chassis is close enough, ";  
                 chassis.stop();
                 tracking_obj_state = 2;
-
-            } 
+            } else {
+                cout << ", pulling closing." << endl;
+                chassis.forward(0.2);
+            }
         }
 
         if (tracking_obj_state == 2) {
@@ -112,9 +113,9 @@ void follow_single_cube(int signature_num, int& tracking_obj_state) {
                 cout << "but not aligned to center. Adjusting angle now." << endl;
                 chassis.setMaxVelocity(100);
                 if (tracing_obj.left_coord > X_POSITION_WHEN_CUBE_IS_IN_FRONT_CENTER) {
-                    chassis.turnAngle(-5_deg);
-                } else {
                     chassis.turnAngle(5_deg);
+                } else {
+                    chassis.turnAngle(-5_deg);
                 }
             }
         }
