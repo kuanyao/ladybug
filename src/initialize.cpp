@@ -16,11 +16,23 @@ const auto WHEEL_DIAMETER = 4.5_in;
 const auto CHASSIS_WIDTH = 9.3_in;
 
 // chassis controller
-okapi::ChassisControllerIntegrated chassis = ChassisControllerFactory::create(
-  {-CHASSIS_LEFT_FRONT, -CHASSIS_LEFT_REAR}, {CHASIIS_RIGHT_FRONT, CHASSIS_RIGHT_REAR},
-  AbstractMotor::gearset::green,
-  {WHEEL_DIAMETER, CHASSIS_WIDTH}
-);
+// okapi::ChassisControllerIntegrated chassis = ChassisControllerFactory::create(
+//   {-CHASSIS_LEFT_FRONT, -CHASSIS_LEFT_REAR}, {CHASIIS_RIGHT_FRONT, CHASSIS_RIGHT_REAR},
+//   AbstractMotor::gearset::green,
+//   {WHEEL_DIAMETER, CHASSIS_WIDTH}
+// );
+
+std::shared_ptr<okapi::ChassisController> chassis = ChassisControllerBuilder()
+    .withMotors({-CHASSIS_LEFT_FRONT, -CHASSIS_LEFT_REAR}, {CHASIIS_RIGHT_FRONT, CHASSIS_RIGHT_REAR})
+    .withGains(
+        {0.001, 0.0001, 0.0001}, // distance controller gains
+        {0.001, 0.0001, 0.0001}, // turn controller gains
+        {0, 0, 0}  // angle controller gains (helps drive straight)
+    )
+    // Green gearset, 4 in wheel diam, 11.5 in wheel track
+    .withDimensions(AbstractMotor::gearset::green, {{WHEEL_DIAMETER, CHASSIS_WIDTH}, imev5GreenTPR})
+    .withOdometry() // use the same scales as the chassis (above)
+    .buildOdometry(); // build an odometry chassis
 
 void initialize_vision_sensor() {
 

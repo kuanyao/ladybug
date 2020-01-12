@@ -94,7 +94,7 @@ extern pros::Motor chassis_right_front;
 extern pros::Motor chassis_right_rear;
 
 extern pros::Controller master;
-extern okapi::ChassisControllerIntegrated chassis;
+extern std::shared_ptr<okapi::ChassisController> chassis;
 
 bool chassis_control();
 void follow_single_cube(int signature_num, int &trace_obj_state);

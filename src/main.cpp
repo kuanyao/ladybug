@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace pros;
+using namespace okapi;
 
 /**
  * A callback function for LLEMU's center button.
@@ -65,7 +66,12 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	// for (int i = 0; i < 2; i++) {
+		chassis->moveDistance(12_in); // Drive forward 12 inches
+		chassis->turnAngle(90_deg);   // Turn in place 90 degrees
+	// }
+}
 
 const int AUTO_TRACE_NONE 	= 0;
 const int AUTO_TRACE_SINGLE_OBJ = 1;
@@ -91,6 +97,11 @@ void select_auto_trace() {
 	}	
 }
 
+bool is_simulate_auton() {
+	return 	master.get_digital_new_press(E_CONTROLLER_DIGITAL_L1) == 1
+		&& 	master.get_digital_new_press(E_CONTROLLER_DIGITAL_L2) == 1;
+}
+
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -108,6 +119,11 @@ void opcontrol() {
 	while (true) {
 		select_auto_trace();
 		if (!chassis_control()) {
+
+			if (is_simulate_auton()) {
+				autonomous();
+			}
+
 			char * trace_obj_str = "trace orange";
 			switch (auto_trace_mode) {
 				case AUTO_TRACE_SINGLE_OBJ:
@@ -123,7 +139,7 @@ void opcontrol() {
 				case AUTO_TRACE_ALL:
 					break;
 				case AUTO_TRACE_NONE:
-					chassis.stop();
+					chassis->stop();
 					break;
 				default:
 					break;

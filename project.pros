@@ -1,11 +1,11 @@
 {
     "py/object": "pros.conductor.project.Project",
     "py/state": {
-        "project_name": "vexv5_vision_demo",
+        "project_name": "ladybug",
         "target": "v5",
         "templates": {
             "kernel": {
-                "location": "/Users/kyao/Library/Application Support/PROS/templates/kernel@3.2.0",
+                "location": "/Users/kuanyao/Library/Application Support/PROS/templates/kernel@3.2.0",
                 "metadata": {
                     "cold_addr": "58720256",
                     "cold_output": "bin/cold.package.bin",
