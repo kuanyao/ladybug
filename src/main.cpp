@@ -1,5 +1,6 @@
 #include "main.h"
 #include "vision_config.h"
+#include "recording.h"
 
 using namespace std;
 using namespace pros;
@@ -102,6 +103,17 @@ bool is_simulate_auton() {
 		&& 	master.get_digital_new_press(E_CONTROLLER_DIGITAL_L2) == 1;
 }
 
+void select_recording() {
+	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_R2)) {
+		recording::reset(45000, 50);	
+	}
+
+	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_R1)) {
+		// recording::printout();
+		recording::replay();
+	}
+}
+
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -117,34 +129,36 @@ bool is_simulate_auton() {
  */
 void opcontrol() {
 	while (true) {
-		select_auto_trace();
+		// select_auto_trace();
+		select_recording();
 		if (!chassis_control()) {
 
-			if (is_simulate_auton()) {
-				autonomous();
-			}
+			// if (is_simulate_auton()) {
+			// 	autonomous();
+			// }
 
-			char * trace_obj_str = "trace orange";
-			switch (auto_trace_mode) {
-				case AUTO_TRACE_SINGLE_OBJ:
-					lcd::clear_line(1);
-					if (trace_obj == 1) {
-						trace_obj_str = "trace purple";
-					} else if (trace_obj == 2) {
-						trace_obj_str = "trace green";
-					}
-					lcd::set_text(1, trace_obj_str);
-					follow_single_cube(trace_obj + 1, trace_obj_state);
-					break;
-				case AUTO_TRACE_ALL:
-					break;
-				case AUTO_TRACE_NONE:
-					chassis->stop();
-					break;
-				default:
-					break;
-			}
+			// char * trace_obj_str = "trace orange";
+			// switch (auto_trace_mode) {
+			// 	case AUTO_TRACE_SINGLE_OBJ:
+			// 		lcd::clear_line(1);
+			// 		if (trace_obj == 1) {
+			// 			trace_obj_str = "trace purple";
+			// 		} else if (trace_obj == 2) {
+			// 			trace_obj_str = "trace green";
+			// 		}
+			// 		lcd::set_text(1, trace_obj_str);
+			// 		follow_single_cube(trace_obj + 1, trace_obj_state);
+			// 		break;
+			// 	case AUTO_TRACE_ALL:
+			// 		break;
+			// 	case AUTO_TRACE_NONE:
+			// 		chassis->stop();
+			// 		break;
+			// 	default:
+			// 		break;
+			// }
 		}
+		recording::record();
 		pros::delay(50);
 	}
 }
