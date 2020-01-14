@@ -1,26 +1,11 @@
 #include "main.h"
 #include "vision_config.h"
 #include "recording.h"
+#include "screen.h"
 
 using namespace std;
 using namespace pros;
 using namespace okapi;
-
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -30,12 +15,9 @@ void on_center_button() {
  */
 void initialize() {
 	delay(100);
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	screen::setup_screen();
 
-	pros::lcd::register_btn1_cb(on_center_button);
-
-	initialize_vision_sensor();
+	//initialize_vision_sensor();
 }
 
 /**
