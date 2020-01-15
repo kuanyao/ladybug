@@ -33,9 +33,14 @@ namespace screen {
 	const char * selected_program;
 
 	void do_saving() {
+		std::string msg = "Program ";
+		msg += selected_program;
+		msg += " saved";
 		recording::RecordUnit * dump = recording::dump();
 		storage::save_to_slot(dump, selected_program);
-		message_box("program saved.");
+		message_box(msg.c_str());
+		master.rumble("-");
+		master.set_text(0, 0, "Saved.");
 	}
 
 	void do_recording() {
@@ -49,6 +54,8 @@ namespace screen {
 		}
 		int record_duration = is_skill_profile ? 60000 : 15000;
 		recording::reset(record_duration, ITERATION_INTERVAL, do_saving);
+		master.rumble(". . .");
+		master.set_text(0, 0, "Starting ...");
 	}
 
 	void do_clear() {
