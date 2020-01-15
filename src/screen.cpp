@@ -1,9 +1,13 @@
-#include "api.h"
+#include "api.h" 
+#include "storage.h"
+#include "main.h"
 
 namespace screen {
 
 	using namespace pros;
 	using namespace std;
+
+	void message_box(const char *);
 
 	//Create a button descriptor string array
 	static const char * red_btnm_map[] = {
@@ -28,11 +32,88 @@ namespace screen {
 	lv_obj_t * btn_matrix_group[3];
 	const char * selected_program;
 
+	void do_saving() {
+		recording::RecordUnit * dump = recording::dump();
+		storage::save_to_slot(dump, selected_program);
+		message_box("program saved.");
+	}
+
+	void do_recording() {
+		bool is_skill_profile = false;
+		int size = sizeof(skill_btnm_map) / sizeof(skill_btnm_map[0]);
+		for (int i=0; i<size; ++i) {
+			if (strcmp(skill_btnm_map[i], selected_program) == 0) {
+				is_skill_profile = true;
+				break;
+			}
+		}
+		int record_duration = is_skill_profile ? 60000 : 15000;
+		recording::reset(record_duration, ITERATION_INTERVAL, do_saving);
+	}
+
+	void do_clear() {
+		storage::clear_slot(selected_program);
+	}
+
+	static lv_res_t confirm_box_callback(lv_obj_t *btns, const char *txt) {
+		if (txt == "Yes") {
+			cout << "confirm to clear " << selected_program << endl;
+			do_clear();
+		}
+		lv_obj_t * mbox = lv_mbox_get_from_btn(btns);
+		lv_obj_t * gray_bg = lv_obj_get_parent(mbox);
+		lv_obj_del(gray_bg);
+
+		return LV_RES_INV;
+	}
+
+	void confirm_box(const char * message, const char * action_name) {
+		static lv_style_t gray_style;
+		lv_style_copy(&gray_style, &lv_style_plain);
+		gray_style.body.opa = LV_OPA_70;
+		gray_style.body.main_color = LV_COLOR_HEX3(0x111);
+		gray_style.body.grad_color = LV_COLOR_HEX3(0x111);
+
+		lv_obj_t * gray_bg = lv_obj_create(lv_scr_act(), NULL);
+		lv_obj_set_style(gray_bg, &gray_style);
+		lv_obj_set_size(gray_bg, LV_HOR_RES, LV_VER_RES);
+
+		static const char * buttons[] = { "Yes", "Cancel", "" };
+		lv_obj_t * mbox = lv_mbox_create(gray_bg, NULL);
+		lv_mbox_set_text(mbox, message);
+		lv_mbox_add_btns(mbox, buttons, confirm_box_callback);
+		lv_obj_set_width(mbox, 200);
+		lv_obj_align(mbox, NULL, LV_ALIGN_CENTER, 0, 0); /*Align to the corner*/
+	}
+
+	void message_box(const char * message) {
+		static const char * buttons[] = { "" };
+		lv_obj_t * mbox = lv_mbox_create(lv_scr_act(), NULL);
+		lv_mbox_set_text(mbox, message);
+		lv_mbox_add_btns(mbox, buttons, NULL);
+		lv_obj_set_width(mbox, 200);
+		lv_obj_align(mbox, NULL, LV_ALIGN_CENTER, 0, 0); /*Align to the corner*/
+		lv_mbox_start_auto_close(mbox, 2000);
+	}
+
 	static lv_res_t action_selector_callback(lv_obj_t *btnm, const char *txt) {
-		if (selected_program == NULL) {
-			cout << "nothing to do!" << endl;
-		} else {
-			cout << txt << " on " << selected_program << endl;
+		cout << txt << " on " << selected_program << endl;
+		if (txt == "Record") {
+			if (storage::is_slot_taken(selected_program)) {
+				message_box("Slot already taken!!");
+			} else {
+				message_box("Record will auto start \nwhen you move the bot.");
+				do_recording();
+			}
+		} else if (txt == "Clear") {
+			if (storage::is_slot_taken(selected_program)) {
+				std::string msg = "Are you sure to clear ";
+				msg += selected_program;
+				msg += "?";
+				confirm_box(msg.c_str(), txt);
+			} else {
+				message_box("Nothing to clear");
+			}
 		}
 		return LV_RES_OK;
 	}

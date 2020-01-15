@@ -87,6 +87,8 @@ const int CHASSIS_LEFT_REAR   = 20;
 const int CHASIIS_RIGHT_FRONT = 9;
 const int CHASSIS_RIGHT_REAR  = 10;
 
+const int ITERATION_INTERVAL = 50;
+
 //chassis
 extern pros::Motor chassis_left_front;
 extern pros::Motor chassis_left_rear;

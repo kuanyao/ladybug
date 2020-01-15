@@ -1,19 +1,13 @@
 #include "main.h"
 #include <exception>
 
+#include "recording.h"
+
 namespace recording {
 
     using namespace std;
     bool is_power_changed(int left, int right);
-    void do_record(int tick, int left, int right);
-
-    struct RecordUnit {
-        int tick;
-        int left_power;
-        int right_power;
-        // double left_position; 
-        // double right_position;
-    } ;
+    void do_record(int left, int right);
 
     // private variables
     RecordUnit *recording;
@@ -22,12 +16,14 @@ namespace recording {
     int recording_interval = 50;
     int recording_time = 15000;
     int tick = 0;
+    void (*post_record_action)(void) = NULL;
 
-    void reset(int duration, int interval) {
+    void reset(int duration, int interval, void (*action)(void)) {
         recording_interval = interval;
         recording_time = duration;
         recording_position = -1;
         tick = 0;
+        post_record_action = action;
         
         if (recording != NULL) {
             delete[] recording;
@@ -47,14 +43,20 @@ namespace recording {
         int right_power = ((okapi::SkidSteerModel *)(&chassis->model()))->getRightSideMotor()->getVoltage();
         int capacity = recording_time/ recording_interval;
 
-        if (tick >= capacity - 1) {
+        if (tick == capacity - 1) {
+            if (post_record_action != NULL) {
+                post_record_action();
+            }
+            ++tick; 
+            return;
+        } else if (tick == capacity) {
             return;
         }
 
         ++ tick;
 
         if (is_power_changed(left_power, right_power)) {
-            do_record(tick, left_power, right_power);
+            do_record(left_power, right_power);
         }
     }
 
@@ -74,9 +76,12 @@ namespace recording {
         return false;
     }
 
-    void do_record(int tick, int left_power, int right_power) {
+    void do_record(int left_power, int right_power) {
         if (recording == NULL) {
             return;
+        }
+        if (recording_position == -1) {
+            tick = 0; // reset tick position
         }
         RecordUnit& new_unit = recording[++recording_position];
         cout << "maing a new record " << recording_position << endl;
@@ -106,5 +111,9 @@ namespace recording {
             pros::delay(recording_interval);
         }
         cout << "replaying done !!" << endl;
+    }
+
+    RecordUnit * dump() {
+        return recording;
     }
 }

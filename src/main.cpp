@@ -87,7 +87,7 @@ bool is_simulate_auton() {
 
 void select_recording() {
 	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_R2)) {
-		recording::reset(45000, 50);	
+		recording::reset(45000, ITERATION_INTERVAL, NULL);	
 	}
 
 	if (master.get_digital_new_press(E_CONTROLLER_DIGITAL_R1)) {
@@ -141,6 +141,6 @@ void opcontrol() {
 			// }
 		}
 		recording::record();
-		pros::delay(50);
+		pros::delay(ITERATION_INTERVAL);
 	}
 }
