@@ -33,8 +33,8 @@ namespace recording {
         recording = new RecordUnit[capacity];
         for (int i=0;i<capacity;++i) {
             recording[i].tick = 0;
-            recording[i].left_power = 0;
-            recording[i].right_power = 0;
+            recording[i].left = 0;
+            recording[i].right = 0;
         }
     }
 
@@ -68,7 +68,7 @@ namespace recording {
             }
         } else { 
             RecordUnit last_unit = recording[recording_position];
-            if (abs(last_unit.left_power - left_power) > threshold || abs(last_unit.right_power - right_power) > threshold) {
+            if (abs(last_unit.left - left_power) > threshold || abs(last_unit.right - right_power) > threshold) {
                 cout << "new power change has detected." << endl;
                 return true;
             } 
@@ -86,13 +86,13 @@ namespace recording {
         RecordUnit& new_unit = recording[++recording_position];
         cout << "maing a new record " << recording_position << endl;
         new_unit.tick = tick;
-        new_unit.left_power = left_power;
-        new_unit.right_power = right_power;
+        new_unit.left = left_power;
+        new_unit.right = right_power;
     }
 
     void printout() {
         for (int i=0; i<=recording_position; ++i) {
-            std::cout << recording[i].tick << ", " << recording[i].left_power << ", " << recording[i].right_power << std::endl;
+            std::cout << recording[i].tick << ", " << recording[i].left << ", " << recording[i].right << std::endl;
         }
     }
 
@@ -103,9 +103,9 @@ namespace recording {
             RecordUnit& unit = recording[r_index];
             int tick = unit.tick;
             if (tick == t) {
-                cout << "replaying " << unit.tick << ", " << unit.left_power << ", " << unit.right_power << endl;
-                ((okapi::SkidSteerModel *)(&chassis->model()))->getLeftSideMotor()->moveVoltage(unit.left_power);
-                ((okapi::SkidSteerModel *)(&chassis->model()))->getRightSideMotor()->moveVoltage(unit.right_power);
+                cout << "replaying " << unit.tick << ", " << unit.left << ", " << unit.right << endl;
+                ((okapi::SkidSteerModel *)(&chassis->model()))->getLeftSideMotor()->moveVoltage(unit.left);
+                ((okapi::SkidSteerModel *)(&chassis->model()))->getRightSideMotor()->moveVoltage(unit.right);
                 r_index ++;
             }
             pros::delay(recording_interval);

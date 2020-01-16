@@ -2,6 +2,7 @@
 #include "vision_config.h"
 #include "recording.h"
 #include "screen.h"
+#include "storage.h"
 
 using namespace std;
 using namespace pros;
@@ -16,7 +17,7 @@ using namespace okapi;
 void initialize() {
 	delay(100);
 	screen::setup_screen();
-
+	storage::load_all_programs();
 	//initialize_vision_sensor();
 }
 

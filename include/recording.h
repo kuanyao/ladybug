@@ -3,11 +3,13 @@
 
 namespace recording {
     struct RecordUnit {
-        int tick;
-        int left_power;
-        int right_power;
-        // double left_position; 
-        // double right_position;
+        short tick;
+        short left;
+        short right;
+        short lever;
+        short left_intake;
+        short right_intake;
+        short arm;
     } ;
 
     void reset(int duration, int interval, void (*post_record_action)(void));
