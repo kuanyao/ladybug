@@ -27,7 +27,7 @@ namespace storage {
             cout << "begin to write to " << program_path << endl;
         } else {
             cout << "!! unable to open file for " << program_path << endl;
-            // return;
+            return;
         }
         int num_of_rec = recording.size();
         cout << "about to write " << num_of_rec << " lines of data." << endl;
