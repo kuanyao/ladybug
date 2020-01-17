@@ -1,6 +1,5 @@
 #include "main.h"
 #include "vision_config.h"
-#include "recording.h"
 #include "screen.h"
 #include "storage.h"
 
@@ -51,10 +50,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	// for (int i = 0; i < 2; i++) {
-		chassis->moveDistance(12_in); // Drive forward 12 inches
-		chassis->turnAngle(90_deg);   // Turn in place 90 degrees
-	// }
+	recording::replay();
 }
 
 const int AUTO_TRACE_NONE 	= 0;
@@ -97,6 +93,14 @@ void select_recording() {
 	}
 }
 
+void select_auton() {
+	if (master.get_digital(E_CONTROLLER_DIGITAL_LEFT) == 1
+		&& master.get_digital_new_press(E_CONTROLLER_DIGITAL_R2) == 1) {
+			cout << "manually trigger auton program" << endl;
+			autonomous();
+		}
+}
+
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -113,7 +117,8 @@ void select_recording() {
 void opcontrol() {
 	while (true) {
 		// select_auto_trace();
-		select_recording();
+		// select_recording();
+		select_auton();
 		if (!chassis_control()) {
 
 			// if (is_simulate_auton()) {

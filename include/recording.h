@@ -16,7 +16,8 @@ namespace recording {
     void record();
     void printout();
     void replay();
-    RecordUnit * dump();
+    void set_replay_loader(std::vector<RecordUnit>& (*)(void));
+    std::vector<RecordUnit>& dump();
 }
 
 #endif

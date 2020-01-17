@@ -36,10 +36,10 @@ namespace screen {
 		std::string msg = "Program ";
 		msg += selected_program;
 		msg += " saved";
-		recording::RecordUnit * dump = recording::dump();
+		vector<recording::RecordUnit>& dump = recording::dump();
 		storage::save_to_slot(dump, selected_program);
 		message_box(msg.c_str());
-		master.rumble("-");
+		master.rumble(".");
 		master.set_text(0, 0, "Saved.");
 	}
 
@@ -54,7 +54,7 @@ namespace screen {
 		}
 		int record_duration = is_skill_profile ? 60000 : 15000;
 		recording::reset(record_duration, ITERATION_INTERVAL, do_saving);
-		master.rumble(". . .");
+		master.rumble(".");
 		master.set_text(0, 0, "Starting ...");
 	}
 
@@ -167,6 +167,15 @@ namespace screen {
 		return btn_matrix;
 	}
 
+	vector<recording::RecordUnit>& load_replaying() {
+		static vector<recording::RecordUnit> empty;
+		if (storage::is_slot_taken(selected_program)) {
+			return storage::get_program(selected_program);
+		} else {
+			return empty; 
+		}
+	}
+
 	void setup_screen()
 	{
 		pros::delay(50); // sometimes LVGL won't draw the screen if there is no delay or it is not inverted on the brain
@@ -189,5 +198,7 @@ namespace screen {
 			style->body.padding.hor = 10;
 			btn_matrix_group[i] = add_button_matrix_to_tab(tab, tab_button_matrix_names[i]);
 		}
+
+		recording::set_replay_loader(load_replaying);
 	}
 }
