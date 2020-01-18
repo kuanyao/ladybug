@@ -15,6 +15,12 @@ vector<AbstractMotor*>& get_motor_group() {
 	motor_group.push_back(right_motor.get());
 	return motor_group;
 }
+
+void notify_controller(const char * rumble_msg, const char * msg) {
+	master.rumble(rumble_msg);
+	master.print(0, 0, "%s", msg);
+}
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -24,6 +30,7 @@ vector<AbstractMotor*>& get_motor_group() {
 void initialize() {
 	delay(100);
 	screen::setup_screen();
+	screen::set_notif_handler(notify_controller);
 	storage::load_all_programs();
 	recording::set_motor_group(get_motor_group());
 	//initialize_vision_sensor();

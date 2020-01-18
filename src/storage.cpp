@@ -19,7 +19,7 @@ namespace storage {
         return all_programs.count(slot_name) == 1;
     }
 
-    void save_to_slot(vector<RecordUnit> &recording, const char * slot_name) {
+    bool save_to_slot(vector<RecordUnit> &recording, const char * slot_name) {
         string program_path = path;
         program_path = program_path + slot_name + ".data";
         ofstream program_file;
@@ -28,7 +28,7 @@ namespace storage {
             cout << "begin to write to " << program_path << endl;
         } else {
             cout << "!! unable to open file for " << program_path << endl;
-            return;
+            return false;
         }
         int num_of_rec = recording.size();
         cout << "about to write " << num_of_rec << " lines of data." << endl;
@@ -44,6 +44,7 @@ namespace storage {
         cout << "done." << endl;
         program_file.close();
         all_programs.insert_or_assign(slot_name, recording);
+        return true;
     }
 
     void clear_slot(const char * slot_name) {

@@ -31,16 +31,30 @@ namespace screen {
 
 	lv_obj_t * btn_matrix_group[3];
 	const char * selected_program;
+	void (*notif_handler)(const char *, const char *) = NULL;
+
+	void set_notif_handler(void (*handler)(const char *, const char *)) {
+		notif_handler = handler;
+	}
+
+	void notif(const char * rumble_msg, const char * msg) {
+		if (notif_handler != NULL) {
+			notif_handler(rumble_msg, msg);
+		}
+	}
 
 	void do_saving() {
 		std::string msg = "Program ";
 		msg += selected_program;
 		msg += " saved";
 		vector<recording::RecordUnit>& dump = recording::dump();
-		storage::save_to_slot(dump, selected_program);
-		message_box(msg.c_str());
-		master.rumble(".");
-		master.set_text(0, 0, "Saved.");
+		if (storage::save_to_slot(dump, selected_program)) {
+			message_box(msg.c_str());
+			notif(".", "Save!!");
+		} else {
+			message_box("Unable to save");
+			notif("-", "!!Unable to save!!");
+		}
 	}
 
 	void do_recording() {
@@ -54,8 +68,7 @@ namespace screen {
 		}
 		int record_duration = is_skill_profile ? 60000 : 15000;
 		recording::reset(record_duration, ITERATION_INTERVAL, do_saving);
-		master.rumble(".");
-		master.set_text(0, 0, "Starting ...");
+		notif(".", "Start recording");
 	}
 
 	void do_clear() {
