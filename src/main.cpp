@@ -7,6 +7,14 @@ using namespace std;
 using namespace pros;
 using namespace okapi;
 
+vector<AbstractMotor*>& get_motor_group() {
+	static vector<AbstractMotor*> motor_group;
+	auto left_motor = ((okapi::SkidSteerModel *)(&chassis->model()))->getLeftSideMotor();
+	auto right_motor = ((okapi::SkidSteerModel *)(&chassis->model()))->getRightSideMotor();
+	motor_group.push_back(left_motor.get());
+	motor_group.push_back(right_motor.get());
+	return motor_group;
+}
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -17,6 +25,7 @@ void initialize() {
 	delay(100);
 	screen::setup_screen();
 	storage::load_all_programs();
+	recording::set_motor_group(get_motor_group());
 	//initialize_vision_sensor();
 }
 

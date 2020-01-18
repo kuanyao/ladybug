@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <filesystem>
+#include <istream>
 
 namespace storage {
     using namespace std;
@@ -34,12 +35,9 @@ namespace storage {
         for (int i=0; i<num_of_rec; ++i) {
             auto ru = recording[i];
             program_file << ru.tick << " ";
-            program_file << ru.left << " ";
-            program_file << ru.right<< " ";
-            program_file << ru.lever << " ";
-            program_file << ru.left_intake << " ";
-            program_file << ru.right_intake << " ";
-            program_file << ru.arm << " ";
+            for (int j=0; j<ru.units.size(); ++j) {
+                program_file << ru.units[j] << " ";
+            }
             program_file << endl;
             cout << ".";
         }
@@ -75,10 +73,10 @@ namespace storage {
         while (std::getline(infile, line)) {
             std::istringstream iss(line);
             RecordUnit ru;
-            if (!(iss >> ru.tick >> ru.left >> ru.right >> ru.lever >> ru.left_intake >> ru.right_intake >> ru.arm)) { 
-                cout << "error in reading!!";
-                break; 
-            } 
+            iss >> ru.tick;
+            for (int num; iss >> num; ) {
+                ru.units.push_back(num);
+            }
             rus.push_back(ru);
             cout << ".";
         }
